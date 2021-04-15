@@ -1,0 +1,79 @@
+include @Core.Web.Cookies
+include @Core.DateTime
+include @Core.FileSystem
+
+class Session
+function start() : Session
+    include @Core.OS    
+    include @Core.FileSystem
+    Session.path = (OS.getEnv('ULTRAGEN_HOME')) + '/' + 'sessions/' + (Session.key)
+    FileSystem.mkdir(Session.path, true)
+    Session.erase = false    
+    full_key = 'UGAPPSESSID_' + (Session.key)
+    started = Cookies.get(full_key)
+    Session.content = {"__DATA__": {}}
+    Session.flashMessages = []
+    if(!started)
+        Session.id = str(DateTime.now()).replace(' ', '').replace('-', '').replace(':', '').replace('.', '')        
+        Cookies.set('UGAPPSESSID_' + (Session.key), Session.id)
+    else
+        Session.id = started
+        session_path = (Session.path) + '/' + (Session.id)
+        if ((FileSystem.isFile(session_path)))
+            Session.content = JSON.parseFile(session_path)
+        end
+    end
+end
+
+function flash(message, category="primary") : Session
+    Session.flashMessages.append({"message": str(message), "category": str(category)})
+end
+
+function getFlashMessages() : Session
+    hasFlash = Session.content.hasKey('__FLASH__')
+    msgs = []
+    if (hasFlash)        
+        msgs = Session.content["__FLASH__"]
+    end
+    Session.content["__FLASH__"] = {}
+    return msgs
+end
+
+function get(key, ifNot=null) : Session
+    x = Session.content["__DATA__"].get(key)
+    return x
+end
+
+function set(key, value) : Session
+    Session.content["__DATA__"][key] = value
+end
+
+function unset(key) : Session
+    if((Session.get(key)))
+        Session.content["__DATA__"].drop(key)
+    end
+end
+
+function destroy() : Session
+    full_key = 'UGAPPSESSID_' + (Session.key)
+    id = Cookies.get(full_key)
+    Cookies.unset(full_key)
+    Session.erase = true
+    if (id)
+        session_path = (Session.path) + '/' + str(id)
+        exist = FileSystem.isFile(session_path)
+        if(exist)
+            FileSystem.delete(session_path)
+        end
+    end
+end
+
+function save() : Session
+    Session.content['__FLASH__'] = Session.flashMessages    
+    # hasData = (Session.content["__DATA__"].keys().length()) != 0
+    # hasFlash = (Session.content["__FLASH__"].length()) != 0
+    if(!(Session.erase))
+        session_path = (Session.path) + '/' + (Session.id)
+        JSON.createFile(Session.content, session_path)
+    end
+end

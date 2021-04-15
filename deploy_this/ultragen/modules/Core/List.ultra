@@ -1,0 +1,148 @@
+function each(fn, args=null) : List
+    
+    for (self, x)        
+        if ((fn.$paramCount) == 1)
+            fn(x)
+        elsif ((fn.$paramCount) == 2)
+            fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for calling argument function', 'Arguments')
+        end
+    end
+    return null
+end
+
+function every(fn, args=null) : List
+    for (self, x)        
+        if ((fn.$paramCount) == 1)
+            t = fn(x)
+        elsif ((fn.$paramCount) == 2)
+            t = fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            t = fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for call argument function', 'Arguments')
+        end
+        if (!t)
+            return false
+        end
+    end
+    return true
+end
+
+function map(fn, args=null) : List
+    ret = []
+    for (self, x)
+        
+        if ((fn.$paramCount) == 1)
+            t = fn(x)
+        elsif ((fn.$paramCount) == 2)
+            t = fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            t = fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for call argument function', 'Arguments')
+        end
+        ret.append(t)
+    end
+    return ret
+end
+
+function filter(fn, args=null) : List
+    ret = []
+    for (self, x)
+        if ((fn.$paramCount) == 1)
+            t = fn(x)
+        elsif ((fn.$paramCount) == 2)
+            t = fn(x, _x)
+        elsif ((fn.$paramCount) == 3)
+            t = fn(x, _x, args)
+        else
+            raise('Wrong number of arguments for call argument function', 'Arguments')
+        end
+        if (t)
+            ret.append(x)
+        end
+    end
+    return ret
+end
+
+function insert(obj, pos) : List
+    empty = []
+    len = self.length()
+    if (pos > len)
+        self.append(obj)
+        return null
+    else
+        for (pos, i)
+            empty.append(self[i])
+        end
+        empty.append(obj)
+        for (pos+1, i)
+            empty.append(self[i])
+        end
+        self.clear()
+        for (empty, i)
+            self.append(i)
+        end
+        return self
+    end
+end
+
+function pos(e) : List
+    for (self, i)
+        if (i == e)
+            return _i
+        end
+    end
+    return -1
+end
+
+
+function combine(other) : List
+    for (other, i)
+        self.append(i)
+    end
+    return self
+end
+
+function drop(index) : List
+    a_new = []
+    for (self, i)
+        if (_i != index)
+            a_new.append(i)
+        end
+    end
+    self.clear()
+    for (a_new, i)
+        self.append(i)
+    end
+end
+
+function remove(index) : List
+    a_new = []
+    for (self, i)
+        if (i != index)
+            a_new.append(i)
+        end
+    end
+    self.clear()
+    for (a_new, i)
+        self.append(i)
+    end
+end
+
+function slice (sp, ep=null) : List
+    if (!ep)
+        ep = self.length()
+    else
+        ep = ep + 1
+    end
+    output = []
+    for (range(sp, ep), i)
+        output.append(self[i])
+    end
+    return output
+end

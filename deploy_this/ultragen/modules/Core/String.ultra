@@ -1,0 +1,51 @@
+function reverse() : String
+    len = self.length
+    res = ''
+    for (len, i)
+        x = len - i - 1
+        res = res + (self[x])
+    end
+    return res
+end
+
+function isInt() : String
+    nums = '0123456789'
+    ret = true
+    for (self, ch)
+        x = nums.pos(ch)
+        
+        if (x == -1)
+            ret = false
+            break
+        end
+    end
+    return ret
+end
+
+function escape() : String
+    return self.replace('<', '&lt;').replace('>', '&gt;')
+end
+
+function writeText(filename) : String
+    self.split('\r\n').writeText(filename)
+end
+
+function tailWith(part) : String
+    cut = self.slice((-1)*(part.length()),0)
+    return cut == part
+end
+
+function last() : String
+    if ((self.length()) > 0)
+        return self[(self.length())-1]
+    else
+        return ''
+    end
+end
+
+function printFile(filename) : String
+    include @Core.FileSystem
+    out = FileSystem.loadText(filename)
+    out = '\r\n'.join(out)
+    return out
+end

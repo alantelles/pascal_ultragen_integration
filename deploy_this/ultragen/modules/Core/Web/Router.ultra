@@ -1,0 +1,215 @@
+class Router
+
+
+function init(name_prefix='', url_prefix='') : Router
+    self.default_decorator = null
+    self.name_prefix = name_prefix
+    self.url_prefix = dropFirstAndLastSlash(url_prefix)
+    self.routes = []
+    routeModel = """{
+        "path": '/some_path',
+        "handler": SomeFunctionReference,
+        "name": :identifier,
+        "method": [some http verb]
+    }"""
+end
+
+function HandlerFor404(params) : Router
+    live 'Page not found<br>'
+    live 'Request data:<br>'
+    live $request
+end
+
+function urlFor(name, params={}) : Router
+    for (self.routes, match)
+        
+        if (name == (match[:name]))
+            
+            matched = match[:path]
+            matchedSplit = matched.split('/')
+            len = matchedSplit.length()
+            output = ['']
+            queryStr = ''
+            for (matchedSplit, part)
+                
+                partIsParam = (part[0]) == ':'
+                
+                if (partIsParam)
+                    
+                    paramName = part.slice(1, part.length())
+                    dotPos = paramName.pos('.')
+                    if (dotPos > 0)
+                        paramName = paramName.slice(dotPos + 1)
+                    end
+                    
+                    ins = params[paramName]
+                    
+                    params.drop(paramName)
+                    output.append(str(ins))
+                else
+                    output.append(part)
+                end
+            end
+            strOut = '/'.join(output)
+            extraParams = params.keys()
+            if ((extraParams.length()) > 0)
+                queryStr = '?'
+                queryList = []
+                for (extraParams, extra)
+                    queryList.append(extra + '=' + str(params[extra]))
+                end
+                queryStr += ('&'.join(queryList))
+            end
+            if (strOut == '')
+                strOut = '/'
+            end
+            strPre = ''
+            if ((self.url_prefix) != '')
+                strPre = '/'
+            end
+            return strPre + (self.url_prefix) + strOut + queryStr
+        end
+    end
+    raise("The given name '" + name + "' doesn't match any url in this router", 'Router')
+end
+
+function dropFirstAndLastSlash(route)
+    if ((route.length()) > 0)
+        f = route[0]
+    else
+        f = ''
+    end
+    
+    len = route.length()
+    if (f == '/')
+        route = route.slice(1, len)
+    end
+    l = route.last()
+    len = route.length()
+    if ((l == '/') && (len > 0))
+        route = route.slice(0, len - 1)
+    end
+    
+    return route
+end
+
+function getMatch(route=null, method=null) : Router
+    if (!method)
+        method = $request[:method]
+    end
+    if (!route)
+        route = $request[:route]
+    end
+    route = dropFirstAndLastSlash(route)
+    
+    routeSplit = route.split('/')
+    lenRoute = routeSplit.length()
+    for (self.routes, match)        
+        routeMatch = true
+        if(method == (match[:method]))
+            
+            candSplit = match[:path].split('/')
+            lenCand = candSplit.length()
+            
+            if (lenCand == lenRoute)
+                
+                params = {}
+                for (candSplit, part)
+                    partIsParam = (part[0]) == ':'
+                    if (part == (routeSplit[_part]))
+                        
+                    elsif (partIsParam)
+                        paramName = part.slice(1, part.length())
+                        dotPos = paramName.pos('.')
+                        paramType = ''
+                        paramValue = routeSplit[_part]
+                        if (dotPos > 0)
+                            paramType = paramName.slice(0, dotPos)
+                            paramName = paramName.slice(dotPos + 1)
+                            if (paramType == 'int')
+                                if ((paramValue.isInt()))
+                                    paramValue = int(routeSplit[_part])
+                                else
+                                    routeMatch = false
+                                    break
+                                end
+                            else
+                                paramValue = routeSplit[_part]
+                            end
+                        end
+                        params[paramName] = paramValue
+                    else
+                        
+                        routeMatch = false
+                        break
+                    end
+                end
+            else
+                routeMatch = false
+                continue
+            end
+            if (routeMatch)
+                                
+                # decorated = match[:handler]
+                # dec = match[:handler_decorator]
+                match[:params] = params
+                
+                return match
+            end
+            
+        end
+    end
+    return {:handler: self.HandlerFor404, :params: {}}
+end
+
+function addRouter(router) : Router
+    for(router.routes, route)
+        newRoute = {
+            :path: (router.url_prefix) + '/' + (route[:path]),
+            :name: (router.name_prefix) + '_' + (route[:name]),
+            :handler: route[:handler],
+            :method: route[:method],
+            :handler_decorator: route[:handler_decorator]
+        }
+        self.routes.append(newRoute)
+    end
+    
+end
+
+function addRoute(path, name, handler, method, handler_decorator) : Router
+    self.routes.append({
+        :path: dropFirstAndLastSlash(path),
+        :name: name,
+        :handler: handler,
+        :method: method,
+        :params: {},
+        :handler_decorator: self.default_decorator
+    })
+end
+
+function getStatic(path, name) : Router
+    self.get(path, name, function(params)
+        include @Core.Web.AppResponse
+        AppResponse.static($request[:route].slice(1))
+    end)
+end
+
+function get(path, name, handler, decor=null) : Router
+    self.addRoute(path, name, handler, 'GET', decor)
+end
+
+function post(path, name, handler, decor=null) : Router
+    self.addRoute(path, name, handler, 'POST', decor)
+end
+
+function delete(path, name, handler, decor=null) : Router
+    self.addRoute(path, name, handler, 'DELETE', decor)
+end
+
+function patch(path, name, handler, decor=null) : Router
+    self.addRoute(path, name, handler, 'PATCH', decor)
+end
+
+function put(path, name, handler, decor=null) : Router
+    self.addRoute(path, name, handler, 'PUT', decor)
+end

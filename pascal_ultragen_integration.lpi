@@ -50,13 +50,23 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="pascal_ultragen_integration"/>
+      <Filename Value="deploy_this/application"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <OtherUnitFiles Value="../ultragen/src/Units;../ultragen/src/BuiltInTypes;../ultragen/src/Symbols;../ultragen/src/ActRecords;../ultragen/src/ASTs;../ultragen/src/Exceptions;../ultragen/src/Utils;../ultragen/src/Utils/JsonTools;../ultragen/src/Core;../ultragen/src/Utils/MarkdownParser;../ultragen/src/BootStrap"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="2"/>
+      </Optimizations>
+    </CodeGeneration>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">
