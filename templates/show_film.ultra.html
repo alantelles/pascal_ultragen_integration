@@ -1,0 +1,30 @@
+@data.localize()
+<div class="card" style="margin-bottom: 10px">
+    <div class="card-body">
+        <h2 class="display-4">{{ title }}</h2>
+        <table class="table no-border">
+            
+            <tr>
+                <th style="width: 160px">Directed by</th>
+                <td>{{ director }}</td>
+            </tr>
+            <tr>
+                <th>Score</th>
+                <td>{{ rt_score }}</td>
+            </tr>
+            <tr>
+                <th>Produced by</th>
+                <td>{{ producer }}</td>
+            </tr>
+            <tr>
+                <th>Released in</th>
+                <td>{{ release_date }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ description }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<a href="/"><button class="btn btn-danger" style="margin-bottom: 10px;">Back to list</button></a>

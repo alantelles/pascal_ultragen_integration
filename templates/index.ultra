@@ -1,0 +1,19 @@
+function templateName(name)
+    full = 'templates/' + name + '.ultra.html'
+    return full
+end
+
+include 'templates/base.ultra.html'
+template = templateName(fromApp['template'])
+view = Base(lambda () : include template)
+if ((fromApp.hasKey(:response)))
+    data = JSON.parse(fromApp[:response])
+end
+
+links = [
+    {:text: 'Home', :link: '/'},
+    {:text: 'GitHub', :link: 'https://github.com/alantelles/pascal_ultragen_integration'},
+    {:text: 'Documentation', :link: '/doc'}
+]
+
+live view()

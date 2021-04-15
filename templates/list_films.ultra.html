@@ -1,0 +1,18 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Director</th>
+            <th>Year</th>
+        </tr>
+    </thead>
+    <tbody>
+@       for(data, film)
+        <tr>
+            <td><a href="/film/{{ film[:id] }}">{{ film[:title] }}</a></td>
+            <td>{{ film[:director] }}</td>
+            <td>{{ film[:release_date] }}</td>
+        </tr>
+@       end
+    </tbody>
+</table>
